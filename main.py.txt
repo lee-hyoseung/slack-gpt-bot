@@ -1,0 +1,27 @@
+from flask import Flask, request, jsonify
+import openai
+
+app = Flask(__name__)
+
+# OpenAI API 키 입력
+openai.api_key = "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"
+
+@app.route('/slack', methods=['POST'])
+def slack_webhook():
+    user_message = request.form.get('text')
+    reply = ask_gpt(user_message)
+    return jsonify({'text': reply})
+
+def ask_gpt(message):
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": message}]
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print(e)
+        return "GPT 호출에 실패했습니다."
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=3000)
